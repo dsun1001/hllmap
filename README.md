@@ -1,2 +1,2 @@
 # hllmap
-Repository for HLLmap.com
+Repository for hllmap.com
