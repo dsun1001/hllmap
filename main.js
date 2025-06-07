@@ -305,7 +305,7 @@ document.getElementById("themeToggle").addEventListener("click", () => {
   localStorage.setItem("theme", body.classList.contains("light") ? "light" : "dark");
 });
 
-document.getElementById("menuToggle").addEventListener("click", () => {
+document.getElementById("showSidebarBtn").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("closed");
 });
 
@@ -321,24 +321,21 @@ document.getElementById("fullscreenToggle").addEventListener("click", () => {
 
 const sidebar = document.getElementById("sidebar");
 const showSidebarBtn = document.getElementById("showSidebarBtn");
-const hideSidebarBtn = document.getElementById("hideSidebarBtn");
 
-// Hide sidebar and show button
-hideSidebarBtn.addEventListener("click", () => {
-  sidebar.classList.add("closed");
-  showSidebarBtn.style.display = "block";
-});
-
-// Show sidebar and hide button
-showSidebarBtn.addEventListener("click", () => {
-  sidebar.classList.remove("closed");
-  showSidebarBtn.style.display = "none";
-});
-
-// Optionally, hide the showSidebarBtn if sidebar is visible on load
-if (!sidebar.classList.contains("closed")) {
-  showSidebarBtn.style.display = "none";
+function closeSidebarOnSmallScreen() {
+  if (window.innerWidth <= 900) {
+    sidebar.classList.add("closed");
+    showSidebarBtn.style.display = "block";
+  } else {
+    sidebar.classList.remove("closed");
+    showSidebarBtn.style.display = "none";
+  }
 }
+
+// Run on load
+closeSidebarOnSmallScreen();
+// And on resize
+window.addEventListener("resize", closeSidebarOnSmallScreen);
 
 const cardSearch = document.getElementById("cardSearch");
 cardSearch.addEventListener("input", function () {
@@ -353,3 +350,58 @@ cardSearch.addEventListener("input", function () {
     }
     });
 });
+
+// Add this after your DOMContentLoaded or main initialization code
+function addSidebarOverlayClose() {
+  const sidebar = document.getElementById("sidebar");
+  const showSidebarBtn = document.getElementById("showSidebarBtn");
+
+  // Create overlay if it doesn't exist
+  let overlay = document.getElementById("sidebarOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "sidebarOverlay";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.background = "rgba(0,0,0,0.01)";
+    overlay.style.zIndex = "999";
+    overlay.style.display = "none";
+    document.body.appendChild(overlay);
+  }
+
+  function showOverlay() {
+    if (window.innerWidth <= 900 && !sidebar.classList.contains("closed")) {
+      overlay.style.display = "block";
+    }
+  }
+
+  function hideOverlay() {
+    overlay.style.display = "none";
+  }
+
+  // Show overlay when sidebar is open on small screens
+  const observer = new MutationObserver(showOverlay);
+  observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+
+  // Also check on resize
+  window.addEventListener("resize", showOverlay);
+
+  // Hide sidebar and overlay when overlay is clicked
+  overlay.addEventListener("click", () => {
+    sidebar.classList.add("closed");
+    showSidebarBtn.style.display = "block";
+    hideOverlay();
+  });
+
+  // Hide overlay when sidebar is closed
+  document.getElementById("hideSidebarBtn").addEventListener("click", hideOverlay);
+  if (showSidebarBtn) {
+    showSidebarBtn.addEventListener("click", showOverlay);
+  }
+}
+
+// Call this after your DOM is ready
+addSidebarOverlayClose();
