@@ -24,8 +24,8 @@ const mapImages = {
     allies: "images/hill400_allies.webp"
   },
   "hurtgen forest": {
-    axis: "images/hurgenforest_axis.webp",
-    allies: "images/hurgenforest_allies.webp"
+    axis: "images/hurtgenforest_axis.webp",
+    allies: "images/hurtgenforest_allies.webp"
   },
   kharkov: {
     axis: "images/kharkov_axis.webp",
@@ -40,8 +40,8 @@ const mapImages = {
     allies: "images/mortain_allies.webp"
   },
   "omaha beach": {
-    axis: "images/omaha_axis.webp",
-    allies: "images/omaha_allies.webp"
+    axis: "images/omahabeach_axis.webp",
+    allies: "images/omahabeach_allies.webp"
   },
   "purple heart lane": {
     axis: "images/purpleheartlane_axis.webp",
