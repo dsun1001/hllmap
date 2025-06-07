@@ -196,9 +196,10 @@ for (const map in mapImages) {
     setTeam("allies");
     highlightCardTeam(card, "allies");
   };
-
-  body.appendChild(axisHalf);
+  
   body.appendChild(alliesHalf);
+  body.appendChild(axisHalf);
+
   card.appendChild(header);
   card.appendChild(body);
   cardList.appendChild(card);
