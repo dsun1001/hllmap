@@ -129,6 +129,16 @@ img {
   margin-top: 1rem;
 }
 
+#mapImage {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+  max-width: 90%;
+  max-height: 80vh;
+  border: 2px solid var(--border-color);
+}
+
 .theme-toggle-wrapper {
   position: absolute;
   top: 1rem;
@@ -257,6 +267,10 @@ body.light .theme-toggle::before {
 .team-half.active {
   background: var(--card-hover);
   color: #fff;
+}
+
+body.light .team-half.active {
+  color: #000;
 }
 
 .selection-row {

@@ -1,15 +1,75 @@
 const mapImages = {
   carentan: {
-    axis: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fcarentan-axis.jpg",
-    allies: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fcarentan-allies.jpg"
+    axis: "images/carentan_axis.webp",
+    allies: "images/carentan_allies.webp"
   },
-  omaha: {
-    axis: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fomaha-axis.jpg",
-    allies: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fomaha-allies.jpg"
+  driel: {
+    axis: "images/driel_axis.webp",
+    allies: "images/driel_allies.webp"
+  },
+  "el alamein": {
+    axis: "images/elalamein_axis.webp",
+    allies: "images/elalamein_allies.webp"
+  },
+  "elsenborn ridge": {
+    axis: "images/elsenbornridge_axis.webp",
+    allies: "images/elsenbornridge_allies.webp"
+  },
+  foy: {
+    axis: "images/foy_axis.webp",
+    allies: "images/foy_allies.webp"
+  },
+  "hill 400": {
+    axis: "images/hill400_axis.webp",
+    allies: "images/hill400_allies.webp"
+  },
+  "hurgen forest": {
+    axis: "images/hurgenforest_axis.webp",
+    allies: "images/hurgenforest_allies.webp"
+  },
+  kharkov: {
+    axis: "images/kharkov_axis.webp",
+    allies: "images/kharkov_allies.webp"
   },
   kursk: {
-    axis: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fkursk-axis.jpg",
-    allies: "https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fkursk-allies.jpg"
+    axis: "images/kursk_axis.webp",
+    allies: "images/kursk_allies.webp"
+  },
+  mortain: {
+    axis: "images/mortain_axis.webp",
+    allies: "images/mortain_allies.webp"
+  },
+  "omaha beach": {
+    axis: "images/omaha_axis.webp",
+    allies: "images/omaha_allies.webp"
+  },
+  "purple heart lane": {
+    axis: "images/purpleheartlane_axis.webp",
+    allies: "images/purpleheartlane_allies.webp"
+  },
+  remagen: {
+    axis: "images/remagen_axis.webp",
+    allies: "images/remagen_allies.webp"
+  },
+  "saint marie du mont": {
+    axis: "images/saintmariedumont_axis.webp",
+    allies: "images/saintmariedumont_allies.webp"
+  },
+  "saint marie egliese": {
+    axis: "images/saintmarieegliese_axis.webp",
+    allies: "images/saintmarieegliese_allies.webp"
+  },
+  stalingrad: {
+    axis: "images/stalingrad_axis.webp",
+    allies: "images/stalingrad_allies.webp"
+  },
+  tobruk: {
+    axis: "images/tobruk_axis.webp",
+    allies: "images/tobruk_allies.webp"
+  },
+  "utah beach": {
+    axis: "images/utahbeach_axis.webp",
+    allies: "images/utahbeach_allies.webp"
   }
 };
 
@@ -164,7 +224,10 @@ if (savedTeam && (savedTeam === "axis" || savedTeam === "allies")) {
 }
 
 function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 const body = document.body;
