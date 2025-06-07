@@ -117,6 +117,22 @@ mapImage.addEventListener("click", () => {
   }
 });
 
+// Show "fullscreen" image on click (works on mobile and desktop)
+mapImage.addEventListener("click", () => {
+  if (!mapImage.classList.contains("image-fullscreen")) {
+    mapImage.classList.add("image-fullscreen");
+  } else {
+    mapImage.classList.remove("image-fullscreen");
+  }
+});
+
+// Allow ESC to exit "fullscreen" mode
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && mapImage.classList.contains("image-fullscreen")) {
+    mapImage.classList.remove("image-fullscreen");
+  }
+});
+
 const fullscreenToggle = document.getElementById("fullscreenToggle");
 
 fullscreenToggle.addEventListener("click", () => {
@@ -128,6 +144,7 @@ fullscreenToggle.addEventListener("click", () => {
     } else if (mapImage.msRequestFullscreen) {
       mapImage.msRequestFullscreen();
     }
+    mapImage.classList.add("image-fullscreen");
   }
 });
 
