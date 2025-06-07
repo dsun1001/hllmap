@@ -14,8 +14,29 @@ const mapImages = {
 };
 
 const mapSelect = document.getElementById("mapSelect");
-const teamSelect = document.getElementById("teamSelect");
 const mapImage = document.getElementById("mapImage");
+
+// Team card toggles
+const teamAxis = document.getElementById("teamAxis");
+const teamAllies = document.getElementById("teamAllies");
+let selectedTeam = "axis";
+
+function setTeam(team) {
+  // console.log('Setting team to:', team);
+  selectedTeam = team;
+  localStorage.setItem("selectedTeam", team);
+  if (team === "axis") {
+    teamAxis.classList.add("active");
+    teamAllies.classList.remove("active");
+  } else {
+    teamAxis.classList.remove("active");
+    teamAllies.classList.add("active");
+  }
+  handleDropdownChange();
+}
+
+teamAxis.addEventListener("click", () => setTeam("axis"));
+teamAllies.addEventListener("click", () => setTeam("allies"));
 
 mapImage.addEventListener("click", () => {
   if (!document.fullscreenElement) {
@@ -84,20 +105,18 @@ for (const map in mapImages) {
 
   const axisHalf = document.createElement("div");
   axisHalf.className = "card-half axis";
-  axisHalf.innerHTML = "🪶 Axis";
+  axisHalf.innerHTML = "Axis";
   axisHalf.onclick = () => {
     mapSelect.value = map;
-    teamSelect.value = "axis";
-    updateImage(map, "axis");
+    setTeam("axis");
   };
 
   const alliesHalf = document.createElement("div");
   alliesHalf.className = "card-half allies";
-  alliesHalf.innerHTML = "🛡 Allies";
+  alliesHalf.innerHTML = "Allies";
   alliesHalf.onclick = () => {
     mapSelect.value = map;
-    teamSelect.value = "allies";
-    updateImage(map, "allies");
+    setTeam("allies");
   };
 
   body.appendChild(axisHalf);
@@ -118,12 +137,31 @@ function updateImage(map, team) {
 
 function handleDropdownChange() {
   const selectedMap = mapSelect.value;
-  const selectedTeam = teamSelect.value;
+  // console.log('Selected map:', selectedMap);
+  localStorage.setItem("selectedMap", selectedMap);
   updateImage(selectedMap, selectedTeam);
 }
 
-mapSelect.addEventListener("change", handleDropdownChange);
-teamSelect.addEventListener("change", handleDropdownChange);
+mapSelect.addEventListener("change", () => {
+  localStorage.setItem("selectedMap", mapSelect.value);
+  handleDropdownChange();
+});
+
+// Restore saved selections from localStorage
+const savedMap = localStorage.getItem("selectedMap");
+const savedTeam = localStorage.getItem("selectedTeam");
+
+// console.log('Saved map:', savedMap);
+// console.log('Saved team:', savedTeam);
+
+if (savedMap && mapImages[savedMap]) {
+  mapSelect.value = savedMap;
+}
+if (savedTeam && (savedTeam === "axis" || savedTeam === "allies")) {
+  setTeam(savedTeam);
+} else {
+  setTeam("allies");
+}
 
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -174,7 +212,3 @@ showSidebarBtn.addEventListener("click", () => {
 if (!sidebar.classList.contains("closed")) {
   showSidebarBtn.style.display = "none";
 }
-
-mapSelect.selectedIndex = 0;
-teamSelect.selectedIndex = 0;
-handleDropdownChange();

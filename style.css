@@ -40,6 +40,7 @@ body {
   overflow-y: auto;
   border-right: 2px solid var(--border-color);
   transition: transform 0.3s ease;
+  position: relative; /* Ensure this is present */
 }
 
 .sidebar.closed {
@@ -216,6 +217,53 @@ body.light .theme-toggle::before {
   font-size: 1.2rem;
   cursor: pointer;
   z-index: 1200;
+  display: block;
+}
+
+.sidebar.closed .hide-sidebar-btn {
+  display: none;
+}
+
+.team-card {
+  display: flex;
+  width: 160px;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-color);
+}
+
+.team-half {
+  flex: 1;
+  padding: 0.7rem 0;
+  text-align: center;
+  cursor: pointer;
+  background: var(--card-bg);
+  color: var(--text-color);
+  transition: background 0.2s, color 0.2s;
+  font-weight: bold;
+  user-select: none;
+}
+
+.team-half.axis {
+  border-right: 1px solid var(--border-color);
+}
+
+.team-half.allies {
+  border-left: 1px solid var(--border-color);
+}
+
+.team-half.active {
+  background: var(--card-hover);
+  color: #fff;
+}
+
+.selection-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {

@@ -10,7 +10,7 @@
   <button class="show-sidebar-btn" id="showSidebarBtn" style="display:none;">☰ Show Sidebar</button>
   <div class="sidebar" id="sidebar">
     <button class="hide-sidebar-btn" id="hideSidebarBtn">✖</button>
-    <h2>Map & Team</h2>
+    <h2>Map & Offensive Team</h2>
     <div id="cardList"></div>
   </div>
 
@@ -22,13 +22,14 @@
     <h1>Hell Let Loose Map Viewer</h1>
 
     <div class="dropdowns">
-      <label for="mapSelect">Map:</label>
-      <select id="mapSelect"></select>
-      <label for="teamSelect">Team:</label>
-      <select id="teamSelect">
-        <option value="axis">Axis</option>
-        <option value="allies">Allies</option>
-      </select>
+      <div class="selection-row">
+        <label for="mapSelect">Map:</label>
+        <select id="mapSelect"></select>
+        <div id="teamCard" class="team-card">
+          <div id="teamAllies" class="team-half allies active">Allies</div>
+          <div id="teamAxis" class="team-half axis">Axis</div>
+        </div>
+      </div>
     </div>
 
     <img id="mapImage" src="" alt="Select a map and team" style="display:none;">
