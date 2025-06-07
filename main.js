@@ -23,7 +23,7 @@ const mapImages = {
     axis: "images/hill400_axis.webp",
     allies: "images/hill400_allies.webp"
   },
-  "hurgen forest": {
+  "hurtgen forest": {
     axis: "images/hurgenforest_axis.webp",
     allies: "images/hurgenforest_allies.webp"
   },
