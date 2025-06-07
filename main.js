@@ -82,7 +82,6 @@ const teamAllies = document.getElementById("teamAllies");
 let selectedTeam = "axis";
 
 function setTeam(team) {
-  // console.log('Setting team to:', team);
   selectedTeam = team;
   localStorage.setItem("selectedTeam", team);
   if (team === "axis") {
@@ -169,6 +168,7 @@ for (const map in mapImages) {
   axisHalf.onclick = () => {
     mapSelect.value = map;
     setTeam("axis");
+    highlightCardTeam(card, "axis");
   };
 
   const alliesHalf = document.createElement("div");
@@ -177,6 +177,7 @@ for (const map in mapImages) {
   alliesHalf.onclick = () => {
     mapSelect.value = map;
     setTeam("allies");
+    highlightCardTeam(card, "allies");
   };
 
   body.appendChild(axisHalf);
@@ -184,6 +185,42 @@ for (const map in mapImages) {
   card.appendChild(header);
   card.appendChild(body);
   cardList.appendChild(card);
+
+  // Initial highlight
+  highlightCardTeam(card, selectedTeam);
+
+  // Keep highlight in sync when dropdown or team changes
+  mapSelect.addEventListener("change", () => {
+    if (mapSelect.value === map) {
+      highlightCardTeam(card, selectedTeam);
+    } else {
+      highlightCardTeam(card, null);
+    }
+  });
+  teamAxis.addEventListener("click", () => {
+    if (mapSelect.value === map) highlightCardTeam(card, "axis");
+  });
+  teamAllies.addEventListener("click", () => {
+    if (mapSelect.value === map) highlightCardTeam(card, "allies");
+  });
+}
+
+// Highlight function for card team halves
+function highlightCardTeam(card, team) {
+  const axisHalf = card.querySelector(".card-half.axis");
+  const alliesHalf = card.querySelector(".card-half.allies");
+  if (!team) {
+    axisHalf.classList.remove("active");
+    alliesHalf.classList.remove("active");
+    return;
+  }
+  if (team === "axis") {
+    axisHalf.classList.add("active");
+    alliesHalf.classList.remove("active");
+  } else if (team === "allies") {
+    axisHalf.classList.remove("active");
+    alliesHalf.classList.add("active");
+  }
 }
 
 function updateImage(map, team) {
@@ -197,9 +234,19 @@ function updateImage(map, team) {
 
 function handleDropdownChange() {
   const selectedMap = mapSelect.value;
-  // console.log('Selected map:', selectedMap);
   localStorage.setItem("selectedMap", selectedMap);
   updateImage(selectedMap, selectedTeam);
+
+  // Highlight only the selected card/team, remove highlight from others
+  const cards = cardList.querySelectorAll(".card");
+  cards.forEach(card => {
+    const cardHeader = card.querySelector(".card-header");
+    if (cardHeader && cardHeader.textContent.trim().toLowerCase() === capitalize(selectedMap).toLowerCase()) {
+      highlightCardTeam(card, selectedTeam);
+    } else {
+      highlightCardTeam(card, null);
+    }
+  });
 }
 
 mapSelect.addEventListener("change", () => {
@@ -275,3 +322,17 @@ showSidebarBtn.addEventListener("click", () => {
 if (!sidebar.classList.contains("closed")) {
   showSidebarBtn.style.display = "none";
 }
+
+const cardSearch = document.getElementById("cardSearch");
+cardSearch.addEventListener("input", function () {
+    const query = cardSearch.value.toLowerCase();
+    const cards = cardList.querySelectorAll(".card");
+    cards.forEach(card => {
+    const header = card.querySelector(".card-header");
+    if (header && header.textContent.toLowerCase().includes(query)) {
+        card.style.display = "";
+    } else {
+        card.style.display = "none";
+    }
+    });
+});
