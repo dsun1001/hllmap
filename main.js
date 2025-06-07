@@ -351,7 +351,6 @@ cardSearch.addEventListener("input", function () {
     });
 });
 
-// Add this after your DOMContentLoaded or main initialization code
 function addSidebarOverlayClose() {
   const sidebar = document.getElementById("sidebar");
   const showSidebarBtn = document.getElementById("showSidebarBtn");
@@ -397,11 +396,14 @@ function addSidebarOverlayClose() {
   });
 
   // Hide overlay when sidebar is closed
-  document.getElementById("hideSidebarBtn").addEventListener("click", hideOverlay);
+  document.getElementById("hideSidebarBtn").addEventListener("click", () => {
+    sidebar.classList.add("closed");
+    showSidebarBtn.style.display = "block";
+    hideOverlay();
+  });
   if (showSidebarBtn) {
     showSidebarBtn.addEventListener("click", showOverlay);
   }
 }
 
-// Call this after your DOM is ready
 addSidebarOverlayClose();
