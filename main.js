@@ -265,7 +265,32 @@ function handleDropdownChange() {
       highlightCardTeam(card, null);
     }
   });
+
+  // Update URL with map and team as query params
+  const params = new URLSearchParams(window.location.search);
+  params.set("map", selectedMap);
+  params.set("team", selectedTeam);
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, "", newUrl);
 }
+
+// On page load, check for map/team in URL and set them
+(function syncFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlMap = params.get("map");
+  const urlTeam = params.get("team");
+  let changed = false;
+  if (urlMap && mapImages[urlMap]) {
+    mapSelect.value = urlMap;
+    localStorage.setItem("selectedMap", urlMap);
+    changed = true;
+  }
+  if (urlTeam && (urlTeam === "axis" || urlTeam === "allies")) {
+    setTeam(urlTeam);
+    changed = true;
+  }
+  if (changed) handleDropdownChange();
+})();
 
 mapSelect.addEventListener("change", () => {
   localStorage.setItem("selectedMap", mapSelect.value);
