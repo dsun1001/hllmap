@@ -408,3 +408,10 @@ function addSidebarOverlayClose() {
 }
 
 addSidebarOverlayClose();
+
+fetch("https://l9k8ekxqn3.execute-api.us-east-1.amazonaws.com/counter")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("visitor-count").textContent = `Visitors: ${data.count.toLocaleString()}`;
+  });
+

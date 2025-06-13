@@ -319,6 +319,20 @@ body.light .team-half.active {
   cursor: zoom-out;
 }
 
+#visitor-count {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.95em;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  pointer-events: none;
+}
+
 @media (max-width: 768px) {
   body {
     flex-direction: column;
