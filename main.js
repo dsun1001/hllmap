@@ -74,7 +74,178 @@ const mapImages = {
 };
 
 const mapSelect = document.getElementById("mapSelect");
-const mapImage = document.getElementById("mapImage");
+let isFullscreen = false;
+let currentScale = 1;
+const minScale = 1;
+const maxScale = 3;
+const scaleStep = 0.1;
+
+const mapImage = document.getElementById('mapImage');
+const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+let downPoint;
+let downScrollPosition;
+let dragMoved = false; // Track if a drag occurred
+
+// Enable panning the image with click+drag when in fullscreen mode
+mapImage.addEventListener("pointerdown", function(e) {
+  if (!isFullscreen) return;
+  mapImage.setPointerCapture(e.pointerId);
+  downPoint = { x: e.clientX, y: e.clientY };
+  dragMoved = false;
+  // Use window scroll for panning if no dedicated viewer
+  downScrollPosition = { 
+    x: window.scrollX, 
+    y: window.scrollY 
+  };
+});
+
+mapImage.addEventListener("pointerup", function(e) {
+  mapImage.releasePointerCapture(e.pointerId);
+  downPoint = undefined;
+  if (dragMoved) {
+    // Prevent click from toggling fullscreen after a drag
+    // dragMoved = false;
+    return;
+  }
+  if (!mapImage.classList.contains("image-fullscreen")) {
+    mapImage.classList.add("image-fullscreen");
+    mapImage.style.cursor = 'grab';
+    currentScale = 1;
+    setImageScale(currentScale);
+    isFullscreen = true;
+  } else {
+    mapImage.classList.remove("image-fullscreen");
+    mapImage.style.cursor = '';
+    setImageScale(1);
+    isFullscreen = false;
+  }
+  if (document.fullscreenElement) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    isFullscreen = false;
+  }
+});
+// Improved panning: use requestAnimationFrame and store translation state outside DOM
+let panState = {
+  x: 0,
+  y: 0,
+  lastX: 0,
+  lastY: 0,
+  animating: false
+};
+
+function applyPanTransform() {
+  mapImage.style.transform = `scale(${currentScale}) translate(${panState.x}px, ${panState.y}px)`;
+  panState.animating = false;
+}
+
+mapImage.addEventListener("pointermove", function(e) {
+  if (!isFullscreen || !downPoint) return;
+
+  // Calculate movement (no need to divide by scale, since we want pixel-accurate panning)
+  const dx = e.clientX - downPoint.x;
+  const dy = e.clientY - downPoint.y;
+
+  // Only start drag if moved enough
+  if (!dragMoved && (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1)) {
+    dragMoved = true;
+  }
+
+  // Calculate image and viewport sizes
+  const rect = mapImage.getBoundingClientRect();
+  const imgWidth = rect.width;
+  const imgHeight = rect.height;
+  const scale = currentScale;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // Scaled image size
+  const scaledWidth = imgWidth * scale;
+  const scaledHeight = imgHeight * scale;
+
+  // Max pan (so the image edge never goes past the viewport edge)
+  const maxPanX = Math.max(0, (scaledWidth - (viewportWidth * scale)) / 5);
+  const maxPanY = Math.max(0, (scaledHeight - (viewportHeight * scale)) / 5);
+
+  console.log(`Scaled size: ${scaledWidth}x${scaledHeight}, Viewport: ${viewportWidth * scale}x${viewportHeight * scale}`);
+  console.log(`Max pan: ${maxPanX}x${maxPanY}, Current pan: ${panState.x}x${panState.y}`);
+
+  // Update pan state
+  panState.x += dx;
+  panState.y += dy;
+
+  // Clamp translation
+  panState.x = Math.max(-maxPanX, Math.min(maxPanX, panState.x));
+  panState.y = Math.max(-maxPanY, Math.min(maxPanY, panState.y));
+
+  // Only update transform once per animation frame
+  if (!panState.animating) {
+    panState.animating = true;
+    requestAnimationFrame(applyPanTransform);
+  }
+
+  downPoint = { x: e.clientX, y: e.clientY };
+});
+
+// Reset pan on fullscreen toggle or zoom
+function resetPan() {
+  panState.x = 0;
+  panState.y = 0;
+  applyPanTransform();
+}
+
+// Call resetPan() when entering/exiting fullscreen or changing zoom
+// (You should call resetPan() in your fullscreen toggle and zoom handlers)
+
+// Prevent default drag behavior on the image (fixes ghost image drag)
+mapImage.setAttribute("draggable", "false");
+mapImage.addEventListener("dragstart", function(e) {
+  e.preventDefault();
+});
+
+// Allow ESC to exit "fullscreen" mode
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && mapImage.classList.contains("image-fullscreen")) {
+    mapImage.classList.remove("image-fullscreen");
+  }
+});
+
+document.getElementById("fullscreenToggle").addEventListener("click", () => {
+  if (mapImage.requestFullscreen) {
+    mapImage.requestFullscreen();
+  } else if (mapImage.webkitRequestFullscreen) {
+    mapImage.webkitRequestFullscreen();
+  } else if (mapImage.msRequestFullscreen) {
+    mapImage.msRequestFullscreen();
+  }
+  isFullscreen = true;
+});
+
+function setImageScale(scale) {
+    mapImage.style.transform = `scale(${scale})`;
+}
+
+// Mouse wheel zoom in fullscreen
+mapImage.addEventListener('wheel', (e) => {
+    // Check if we're in fullscreen mode
+    if (document.fullscreenElement) {
+        console.log("In fullscreen mode");
+    }
+    if (!isFullscreen) return;
+    e.preventDefault();
+    if (e.deltaY < 0) {
+        currentScale = Math.min(currentScale + scaleStep, maxScale);
+    } else {
+        currentScale = Math.max(currentScale - scaleStep, minScale);
+    }
+    setImageScale(currentScale);
+}, { passive: false });
 
 // Team card toggles
 const teamAxis = document.getElementById("teamAxis");
@@ -96,70 +267,6 @@ function setTeam(team) {
 
 teamAxis.addEventListener("click", () => setTeam("axis"));
 teamAllies.addEventListener("click", () => setTeam("allies"));
-
-mapImage.addEventListener("click", () => {
-  if (!document.fullscreenElement) {
-    if (mapImage.requestFullscreen) {
-      mapImage.requestFullscreen();
-    } else if (mapImage.webkitRequestFullscreen) {
-      mapImage.webkitRequestFullscreen();
-    } else if (mapImage.msRequestFullscreen) {
-      mapImage.msRequestFullscreen();
-    }
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-  }
-});
-
-// Show "fullscreen" image on click (works on mobile and desktop)
-mapImage.addEventListener("click", () => {
-  if (!mapImage.classList.contains("image-fullscreen")) {
-    mapImage.classList.add("image-fullscreen");
-  } else {
-    mapImage.classList.remove("image-fullscreen");
-  }
-});
-
-// Allow ESC to exit "fullscreen" mode
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && mapImage.classList.contains("image-fullscreen")) {
-    mapImage.classList.remove("image-fullscreen");
-  }
-});
-
-const fullscreenToggle = document.getElementById("fullscreenToggle");
-
-fullscreenToggle.addEventListener("click", () => {
-  if (!document.fullscreenElement) {
-    if (mapImage.requestFullscreen) {
-      mapImage.requestFullscreen();
-    } else if (mapImage.webkitRequestFullscreen) {
-      mapImage.webkitRequestFullscreen();
-    } else if (mapImage.msRequestFullscreen) {
-      mapImage.msRequestFullscreen();
-    }
-    mapImage.classList.add("image-fullscreen");
-  }
-});
-
-// Exit fullscreen on image click if currently fullscreen
-mapImage.addEventListener("click", () => {
-  if (document.fullscreenElement) {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-  }
-});
 
 const cardList = document.getElementById("cardList");
 
@@ -333,16 +440,6 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 
 document.getElementById("showSidebarBtn").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("closed");
-});
-
-document.getElementById("fullscreenToggle").addEventListener("click", () => {
-  if (mapImage.requestFullscreen) {
-    mapImage.requestFullscreen();
-  } else if (mapImage.webkitRequestFullscreen) {
-    mapImage.webkitRequestFullscreen();
-  } else if (mapImage.msRequestFullscreen) {
-    mapImage.msRequestFullscreen();
-  }
 });
 
 const sidebar = document.getElementById("sidebar");
