@@ -434,9 +434,36 @@ function addSidebarOverlayClose() {
 
 addSidebarOverlayClose();
 
-fetch("https://l9k8ekxqn3.execute-api.us-east-1.amazonaws.com/counter")
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("visitor-count").textContent = `Visitors: ${data.count.toLocaleString()}`;
-  });
+const VISITOR_COUNT_KEY = "visitorCount";
+const VISITOR_COUNT_TIME_KEY = "visitorCountTime";
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+function showVisitorCount(count) {
+  document.getElementById("visitor-count").textContent = `Visitors: ${Number(count).toLocaleString()}`;
+}
+
+function getStoredVisitorCount() {
+  const count = localStorage.getItem(VISITOR_COUNT_KEY);
+  const time = localStorage.getItem(VISITOR_COUNT_TIME_KEY);
+  if (count && time) {
+    const age = Date.now() - Number(time);
+    if (age < ONE_DAY_MS) {
+      return count;
+    }
+  }
+  return null;
+}
+
+const storedCount = getStoredVisitorCount();
+if (storedCount !== null) {
+  showVisitorCount(storedCount);
+} else {
+  fetch("https://l9k8ekxqn3.execute-api.us-east-1.amazonaws.com/counter")
+    .then(res => res.json())
+    .then(data => {
+      showVisitorCount(data.count);
+      localStorage.setItem(VISITOR_COUNT_KEY, data.count);
+      localStorage.setItem(VISITOR_COUNT_TIME_KEY, Date.now());
+    });
+}
 
