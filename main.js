@@ -70,6 +70,10 @@ const mapImages = {
   "utah beach": {
     axis: "images/utahbeach_axis.webp",
     allies: "images/utahbeach_allies.webp"
+  },
+  "tank ID": {
+    axis: "images/tank_id.webp",
+    allies: "images/tank_id.webp"
   }
 };
 
