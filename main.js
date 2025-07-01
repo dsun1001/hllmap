@@ -1,79 +1,111 @@
 const mapImages = {
   carentan: {
     axis: "images/carentan_axis.webp",
-    allies: "images/carentan_allies.webp"
+    allies: "images/carentan_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   driel: {
     axis: "images/driel_axis.webp",
-    allies: "images/driel_allies.webp"
+    allies: "images/driel_allies.webp",
+    axis_tanks: "images/tanks/british_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "el alamein": {
     axis: "images/elalamein_axis.webp",
-    allies: "images/elalamein_allies.webp"
+    allies: "images/elalamein_allies.webp",
+    axis_tanks: "images/tanks/british_8th_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "elsenborn ridge": {
     axis: "images/elsenbornridge_axis.webp",
-    allies: "images/elsenbornridge_allies.webp"
+    allies: "images/elsenbornridge_allies.webp",
+    axis_tanks: "images/tanks/us_winter_tanks.jpg",
+    allies_tanks: "images/tanks/germany_winter_tanks.jpg"
   },
   foy: {
     axis: "images/foy_axis.webp",
-    allies: "images/foy_allies.webp"
+    allies: "images/foy_allies.webp",
+    axis_tanks: "images/tanks/us_winter_tanks.jpg",
+    allies_tanks: "images/tanks/germany_winter_tanks.jpg"
   },
   "hill 400": {
     axis: "images/hill400_axis.webp",
-    allies: "images/hill400_allies.webp"
+    allies: "images/hill400_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "hurtgen forest": {
     axis: "images/hurtgenforest_axis.webp",
-    allies: "images/hurtgenforest_allies.webp"
+    allies: "images/hurtgenforest_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   kharkov: {
     axis: "images/kharkov_axis.webp",
-    allies: "images/kharkov_allies.webp"
+    allies: "images/kharkov_allies.webp",
+    axis_tanks: "images/tanks/soviet_winter_tanks.jpg",
+    allies_tanks: "images/tanks/germany_winter_tanks.jpg"
   },
   kursk: {
     axis: "images/kursk_axis.webp",
-    allies: "images/kursk_allies.webp"
+    allies: "images/kursk_allies.webp",
+    axis_tanks: "images/tanks/soviet_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   mortain: {
     axis: "images/mortain_axis.webp",
-    allies: "images/mortain_allies.webp"
+    allies: "images/mortain_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "omaha beach": {
     axis: "images/omahabeach_axis.webp",
-    allies: "images/omahabeach_allies.webp"
+    allies: "images/omahabeach_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "purple heart lane": {
     axis: "images/purpleheartlane_axis.webp",
-    allies: "images/purpleheartlane_allies.webp"
+    allies: "images/purpleheartlane_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   remagen: {
     axis: "images/remagen_axis.webp",
-    allies: "images/remagen_allies.webp"
+    allies: "images/remagen_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "saint marie du mont": {
     axis: "images/saintmariedumont_axis.webp",
-    allies: "images/saintmariedumont_allies.webp"
+    allies: "images/saintmariedumont_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "saint marie egliese": {
     axis: "images/saintmarieegliese_axis.webp",
-    allies: "images/saintmarieegliese_allies.webp"
+    allies: "images/saintmarieegliese_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   stalingrad: {
     axis: "images/stalingrad_axis.webp",
-    allies: "images/stalingrad_allies.webp"
+    allies: "images/stalingrad_allies.webp",
+    axis_tanks: "images/tanks/soviet_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   tobruk: {
     axis: "images/tobruk_axis.webp",
-    allies: "images/tobruk_allies.webp"
+    allies: "images/tobruk_allies.webp",
+    axis_tanks: "images/tanks/british_8th_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   },
   "utah beach": {
     axis: "images/utahbeach_axis.webp",
-    allies: "images/utahbeach_allies.webp"
-  },
-  "tank ID": {
-    axis: "images/tank_id.webp",
-    allies: "images/tank_id.webp"
+    allies: "images/utahbeach_allies.webp",
+    axis_tanks: "images/tanks/us_tanks.jpg",
+    allies_tanks: "images/tanks/germany_tanks.jpg"
   }
 };
 
@@ -352,12 +384,37 @@ function highlightCardTeam(card, team) {
   }
 }
 
+let showTanks = false;
+
+const viewMap = document.getElementById("viewMap");
+const viewTanks = document.getElementById("viewTanks");
+
+viewMap.addEventListener("click", () => {
+  showTanks = false;
+  viewMap.classList.add("active");
+  viewTanks.classList.remove("active");
+  handleDropdownChange();
+});
+viewTanks.addEventListener("click", () => {
+  showTanks = true;
+  viewTanks.classList.add("active");
+  viewMap.classList.remove("active");
+  handleDropdownChange();
+});
+
 function updateImage(map, team) {
-  const url = mapImages[map]?.[team];
+  let url;
+  if (showTanks) {
+    url = mapImages[map]?.[team + "_tanks"];
+  } else {
+    url = mapImages[map]?.[team];
+  }
   if (url) {
     mapImage.src = url;
     mapImage.style.display = "block";
-    mapImage.alt = `${capitalize(map)} - ${capitalize(team)}`;
+    mapImage.alt = showTanks
+      ? `${capitalize(map)} - ${capitalize(team)} Tanks`
+      : `${capitalize(map)} - ${capitalize(team)}`;
   }
 }
 
@@ -381,23 +438,32 @@ function handleDropdownChange() {
   const params = new URLSearchParams(window.location.search);
   params.set("map", selectedMap);
   params.set("team", selectedTeam);
+  params.set("view", showTanks ? "tanks" : "map");
   const newUrl = `${window.location.pathname}?${params.toString()}`;
   window.history.replaceState({}, "", newUrl);
 }
 
-// On page load, check for map/team in URL and set them
+// On page load, check for map/team/view in URL and set them
 (function syncFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const urlMap = params.get("map");
   const urlTeam = params.get("team");
+  const urlView = params.get("view");
   let changed = false;
-  if (urlMap && mapImages[urlMap]) {
+  if (urlMap && mapImages[urlMap] && urlView) {
     mapSelect.value = urlMap;
     localStorage.setItem("selectedMap", urlMap);
+    localStorage.setItem("selectedView", urlView);
     changed = true;
   }
   if (urlTeam && (urlTeam === "axis" || urlTeam === "allies")) {
     setTeam(urlTeam);
+    changed = true;
+  }
+  if (urlView === "tanks") {
+    showTanks = true;
+    viewTanks.classList.add("active");
+    viewMap.classList.remove("active");
     changed = true;
   }
   if (changed) handleDropdownChange();
