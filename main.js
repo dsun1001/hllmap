@@ -450,6 +450,13 @@ function handleDropdownChange() {
 
   document.title = readableTitle;
   document.getElementById('dynamic-desc').setAttribute('content', readableDesc);
+
+  if (urlView === 'tanks') {
+    document.getElementById('pageHeader').textContent = `${capitalize(urlMap)} Tanks`;
+  }
+  else {
+    document.getElementById('pageHeader').textContent = `${capitalize(urlMap)} Default Garrisons`;
+  }
 }
 
 // On page load, check for map/team/view in URL and set them
