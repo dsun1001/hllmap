@@ -483,7 +483,7 @@ function handleDropdownChange() {
     viewMap.classList.remove("active");
     changed = true;
   }
-  if (changed) handleDropdownChange();
+  handleDropdownChange();
 
 })();
 
