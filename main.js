@@ -648,5 +648,3 @@ if (storedCount !== null) {
       localStorage.setItem(VISITOR_COUNT_TIME_KEY, Date.now());
     });
 }
-
-syncFromUrl();
