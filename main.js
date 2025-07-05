@@ -439,13 +439,13 @@ function handleDropdownChange() {
   window.history.pushState({}, '', `/${selectedMap}/${selectedTeam}/${showTanks ? 'tanks' : 'map'}`);
   // window.history.replaceState({}, "", newUrl);
   const [ , urlMap, urlTeam, urlView ] = window.location.pathname.split('/');
-  const readableTitle = `${capitalize(urlMap)} - ${capitalize(urlTeam)} - ${urlView === 'tanks' ? 'Tank Identification' : 'Default Garrison Map'}`;
+  const readableTitle = `${capitalize(urlMap)} ${urlView === 'tanks' ? 'Tanks' : 'Default Garrisons'}`;
   readableDesc = '';
   if (urlView === 'tanks') {
-    readableDesc = `${capitalize(urlMap)} ${capitalize(urlTeam)} tank idenfication. Use this chart to identify enemy tanks in Hell Let Loose.`;
+    readableDesc = `${capitalize(urlMap)} tank idenfication. Hell Let Loose tank idenfication for the ${capitalize(urlMap)} map. Use this map to find what the enemy tanks look like.`;
   }
   else {
-    readableDesc = `${capitalize(urlMap)} ${capitalize(urlTeam)} default garrison locations. Use this map to find where the default garrison spawn locations are for the Offensive game mode in Hell Let Loose.`;
+    readableDesc = `${capitalize(urlMap)} default garrison locations. Use this map to find where the default garrison spawn locations are for the Offensive game mode in Hell Let Loose.`;
   }
 
   document.title = readableTitle;
