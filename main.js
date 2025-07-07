@@ -457,6 +457,8 @@ function handleDropdownChange() {
   else {
     document.getElementById('pageHeader').textContent = `${capitalize(urlMap)} Default Garrisons`;
   }
+  const currentURL = window.location.origin + window.location.pathname;
+  document.getElementById("canonical").setAttribute("href", currentURL);
 }
 
 // On page load, check for map/team/view in URL and set them
