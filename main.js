@@ -620,7 +620,8 @@ addSidebarOverlayClose();
 
 const VISITOR_COUNT_KEY = "visitorCount";
 const VISITOR_COUNT_TIME_KEY = "visitorCountTime";
-const ONE_DAY_MS = 8 * 60 * 60 * 1000;
+// currently set to 1 hour
+const ONE_DAY_MS = 1 * 60 * 60 * 1000;
 
 function showVisitorCount(count) {
   document.getElementById("visitor-count").textContent = `Visitors: ${Number(count).toLocaleString()}`;
