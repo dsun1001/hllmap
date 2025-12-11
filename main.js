@@ -89,6 +89,12 @@ const mapImages = {
     axis_tanks: "/images/tanks/us_tanks.jpg",
     allies_tanks: "/images/tanks/germany_tanks.jpg"
   },
+  smolensk: {
+    axis: "/images/smolensk_axis.webp",
+    allies: "/images/smolensk_allies.webp",
+    axis_tanks: "/images/tanks/soviet_tanks.jpg",
+    allies_tanks: "/images/tanks/germany_tanks.jpg"
+  },
   stalingrad: {
     axis: "/images/stalingrad_axis.webp",
     allies: "/images/stalingrad_allies.webp",
