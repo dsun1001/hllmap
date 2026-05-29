@@ -1,11 +1,35 @@
-[hllmap.com](https://hllmap.com/)
+# hllmap.com
 
-<strong>hllmap.com</strong> is a fan-made tool for viewing Offensive game-mode default garrison locations in <em>Hell Let Loose</em>.
+Fan-made Hell Let Loose map tool for Offensive default garrison locations and tank identification.
 
-<strong>Default Garrisons</strong> have a 10 second spawn timer and can only be destroyed with satchels, molotovs, flamethrowers, or by manually dismantling them.
+## Development
 
-Use the map and team selectors to view different layouts. This project is <a href="https://github.com/dsun1001/hllmap" target="_blank" rel="noopener" style="color:var(--text-color); opacity:0.7; text-decoration:underline;">open source</a> and not affiliated with Black Matter or Team17.
+```bash
+npm install
+npm run dev
+```
 
-Map images are as well as inspiration for the project are credited to the <a href="https://www.reddit.com/r/HellLetLoose/comments/1ejip8e/default_garrison_ultimate_guide_2024/" target="_blank" rel="noopener" style="color:var(--text-color); opacity:0.7; text-decoration:underline;">Default Garrison Ultimate Guide (2024) by u/Nyclas</a> on Reddit and the excellent <a href="https://mattw.io/maps-let-loose/" target="_blank" rel="noopener" style="color:var(--text-color); opacity:0.7; text-decoration:underline;">Maps Let Loose</a> tool.
+## Build
 
-If you find <strong>hllmap.com</strong> useful and would like <a href="https://coff.ee/grogufan" target="_blank" rel="noopener" style="color:var(--text-color); opacity:0.7; text-decoration:underline;">to contribute to hosting costs</a>, it would be greatly appreciated.
+```bash
+npm run build
+```
+
+On Windows PowerShell, use `npm.cmd run build` if script execution policy blocks `npm`.
+
+The build outputs static files to `dist/`:
+
+- `/` is a map-picker hub.
+- `/about` and `/about.html` are prerendered about pages.
+- Every valid map route is prerendered as an extensionless S3 object, such as `/carentan/allies/map` and `/thanh-hoa-bridge/us/map`.
+- `sitemap.xml` is generated from the same route manifest as the React app.
+
+When uploading to S3, extensionless route objects in `dist/` must use `Content-Type: text/html; charset=utf-8`.
+
+## Card preview images
+
+Homepage cards use `previewImage` from `src/data/maps.js` when present, and otherwise fall back to the first team map image. Only add loading-screen or promotional images if they are official/approved for reuse or you have permission to host them.
+
+## Credits
+
+Map images and inspiration are credited to the Default Garrison Ultimate Guide and the Maps Let Loose tool. This project is not affiliated with Black Matter or Team17.
