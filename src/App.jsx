@@ -12,6 +12,7 @@ import {
   Copy,
   Maximize2,
   Menu,
+  Minimize2,
   Moon,
   RotateCcw,
   Search,
@@ -208,10 +209,12 @@ function MapDetailPage({ route }) {
 
 function MapViewport({ route }) {
   const [zoomKit, setZoomKit] = useState(null);
+  const [fullscreenMode, setFullscreenMode] = useState(null);
   const containerRef = useRef(null);
   const imageSrc = getImageForRoute(route);
   const alt = `${getRouteHeading(route)} map image`;
   const resetKey = `${route.map.id}-${route.team.slug}-${route.view}`;
+  const isFullscreen = Boolean(fullscreenMode);
 
   useEffect(() => {
     let mounted = true;
@@ -228,19 +231,69 @@ function MapViewport({ route }) {
     };
   }, []);
 
+  useEffect(() => {
+    function syncFullscreenState() {
+      const element = getFullscreenElement();
+      if (element === containerRef.current) {
+        setFullscreenMode("native");
+      } else if (fullscreenMode === "native") {
+        setFullscreenMode(null);
+      }
+    }
+
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
+    document.addEventListener("MSFullscreenChange", syncFullscreenState);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
+      document.removeEventListener("MSFullscreenChange", syncFullscreenState);
+    };
+  }, [fullscreenMode]);
+
+  useEffect(() => {
+    if (!isFullscreen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFullscreen]);
+
   async function enterFullscreen() {
     const element = containerRef.current;
     if (!element) return;
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
+
+    if (fullscreenMode === "native" || getFullscreenElement() === element) {
+      await exitFullscreen();
+      setFullscreenMode(null);
       return;
     }
-    await element.requestFullscreen?.();
+
+    if (fullscreenMode === "fallback") {
+      setFullscreenMode(null);
+      return;
+    }
+
+    if (shouldUseFallbackFullscreen()) {
+      setFullscreenMode("fallback");
+      return;
+    }
+
+    try {
+      await requestFullscreen(element);
+      setFullscreenMode("native");
+    } catch (error) {
+      setFullscreenMode("fallback");
+    }
   }
 
   if (!zoomKit) {
     return (
-      <section className="map-stage" ref={containerRef} aria-label="Map image">
+      <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} aria-label="Map image">
         <img className="map-image plain" src={imageSrc} alt={alt} />
       </section>
     );
@@ -249,7 +302,7 @@ function MapViewport({ route }) {
   const { TransformWrapper, TransformComponent } = zoomKit;
 
   return (
-    <section className="map-stage" ref={containerRef} aria-label="Map image">
+    <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} aria-label="Map image">
       <TransformWrapper
         key={resetKey}
         initialScale={1}
@@ -268,7 +321,11 @@ function MapViewport({ route }) {
               <ToolbarButton label="Zoom in" onClick={() => zoomIn(0.35)} icon={<ZoomIn size={18} />} />
               <ToolbarButton label="Zoom out" onClick={() => zoomOut(0.35)} icon={<ZoomOut size={18} />} />
               <ToolbarButton label="Reset view" onClick={() => resetTransform()} icon={<RotateCcw size={18} />} />
-              <ToolbarButton label="Fullscreen" onClick={enterFullscreen} icon={<Maximize2 size={18} />} />
+              <ToolbarButton
+                label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                onClick={enterFullscreen}
+                icon={isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              />
             </div>
             <TransformComponent wrapperClass="transform-wrapper" contentClass="transform-content">
               <img className="map-image" src={imageSrc} alt={alt} draggable="false" />
@@ -384,7 +441,7 @@ function SidebarMapCard({ map, currentRoute, onNavigate }) {
 
 function GameTabs({ activeGame, onSelect, compact = false }) {
   return (
-    <div className={`segmented ${compact ? "compact" : ""}`} role="tablist" aria-label="Game">
+    <div className={`segmented game-tabs ${compact ? "compact" : ""}`} role="tablist" aria-label="Game">
       {GAMES.map(game => (
         <button
           key={game.id}
@@ -399,6 +456,26 @@ function GameTabs({ activeGame, onSelect, compact = false }) {
       ))}
     </div>
   );
+}
+
+function getFullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+}
+
+function requestFullscreen(element) {
+  const request = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+  if (!request) return Promise.reject(new Error("Fullscreen is not supported"));
+  return Promise.resolve(request.call(element));
+}
+
+function exitFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+  if (!exit) return Promise.resolve();
+  return Promise.resolve(exit.call(document));
+}
+
+function shouldUseFallbackFullscreen() {
+  return window.matchMedia?.("(max-width: 640px)").matches || !document.fullscreenEnabled;
 }
 
 function SegmentedLinks({ label, options }) {
