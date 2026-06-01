@@ -365,7 +365,6 @@ function MapHistory({ route }) {
 
   return (
     <section className="history-section" aria-labelledby="history-title">
-      <h2 id="history-title">{route.map.label} Historical Context</h2>
       <p className="history-summary">{history.summary}</p>
       <div className="history-objectives">
         {route.map.teams.map(team => {
