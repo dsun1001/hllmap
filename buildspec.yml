@@ -12,7 +12,6 @@ phases:
   post_build:
     commands:
       - aws s3 sync dist/ s3://hllmap.com --delete
-      - aws s3api put-bucket-website --bucket www.hllmap.com --website-configuration '{"RedirectAllRequestsTo":{"HostName":"hllmap.com","Protocol":"https"}}'
       - |
         find dist -type f ! -name "*.*" -print0 | while IFS= read -r -d '' file; do
           key="${file#dist/}"
