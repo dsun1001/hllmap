@@ -12,11 +12,16 @@ phases:
   post_build:
     commands:
       - aws s3 sync dist/ s3://hllmap.com --delete
+      - find dist -type f ! -name "*.*" -print
       - |
-        find dist -type f ! -name "*.*" -print0 | while IFS= read -r -d '' file; do
-          key="${file#dist/}"
-          aws s3 cp "$file" "s3://hllmap.com/$key" --content-type "text/html; charset=utf-8" --metadata-directive REPLACE
-        done
+        find dist -type f ! -name "*.*" -exec sh -c '
+          for file do
+            key="${file#dist/}"
+            aws s3 cp "$file" "s3://hllmap.com/$key" \
+              --content-type "text/html; charset=utf-8" \
+              --metadata-directive REPLACE
+          done
+        ' sh {} +
 
 artifacts:
   base-directory: dist
