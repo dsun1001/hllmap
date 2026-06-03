@@ -33,7 +33,7 @@ assert.equal(carentanTanks.type, "detail");
 assert.equal(carentanTanks.view, "tanks");
 
 assert.equal(getCanonicalUrl("/"), "https://hllmap.com/");
-assert.equal(getIndexableRoutes().length, 80);
+assert.equal(getIndexableRoutes().length, 82);
 
 const sitemap = getSitemapXml();
 assert.match(sitemap, /https:\/\/hllmap\.com\/thanh-hoa-bridge\/us\/map/);

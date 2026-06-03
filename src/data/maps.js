@@ -27,6 +27,10 @@ export const FACTIONS = {
     label: "United Kingdom",
     flagImage: "/images/flags/uk.svg"
   },
+  canada: {
+    label: "Canada",
+    flagImage: "/images/flags/canada.svg"
+  },
   germany: {
     label: "German Army",
     flagImage: "/images/flags/balkenkreuz.svg"
@@ -103,6 +107,15 @@ export const MAPS = [
     teams: [
       { id: "allies", slug: "allies", label: "Allies", faction: "unitedStates", image: "/images/hurtgenforest_allies.webp", tankImage: "/images/tanks/germany_tanks.jpg" },
       { id: "axis", slug: "axis", label: "Axis", faction: "germany", image: "/images/hurtgenforest_axis.webp", tankImage: "/images/tanks/us_tanks.jpg" }
+    ]
+  },
+  {
+    id: "juno-beach",
+    label: "Juno Beach",
+    game: "hll",
+    teams: [
+      { id: "allies", slug: "allies", label: "Allies", faction: "canada", image: "/images/junobeach_allies.webp" },
+      { id: "axis", slug: "axis", label: "Axis", faction: "germany", image: "/images/junobeach_axis.webp" }
     ]
   },
   {
@@ -285,6 +298,14 @@ export const MAP_HISTORIES = {
     },
     outcome: "The battle became one of the U.S. Army's costliest European campaigns and delayed the push toward the Rhine."
   },
+  "juno-beach": {
+    summary: "Juno Beach was the Canadian landing beach on D-Day, 6 June 1944, between Gold Beach to the west and Sword Beach to the east.",
+    objectives: {
+      allies: "The Allied objective was for Canadian forces to move inland from the beach, secure exits and villages, and link the eastern Normandy landing areas.",
+      axis: "The Axis objective was to hold coastal strongpoints, delay the landing forces at the beach, and prevent an Allied breakout inland."
+    },
+    outcome: "Canadian troops overcame heavy coastal defenses and advanced inland, creating an important foothold in the Normandy beachhead."
+  },
   kharkov: {
     summary: "The Third Battle of Kharkov was fought in February and March 1943 after Soviet advances following Stalingrad overextended the front.",
     objectives: {
@@ -441,6 +462,13 @@ export const PREVIEW_CREDITS = {
     license: "Public domain",
     source: "https://commons.wikimedia.org/wiki/File:SC_270664_-_U.S._infantrymen_leave_the_muddy_road_to_enter_the_the_Hurtgen_Forest,_Germany,_as_they_advance_against_German_installations_in_the_wooded_area._18_November,_1944._(52274984843).jpg"
   },
+  "juno-beach": {
+    image: "/images/previews/juno-beach.jpg",
+    title: "Canadian landings at Juno Beach",
+    author: "Unknown author",
+    license: "Public domain",
+    source: "https://commons.wikimedia.org/wiki/File:Canadian_landings_at_Juno_Beach.jpg"
+  },
   kharkov: {
     image: "/images/previews/kharkov.jpg",
     title: "Kharkov, August 1943",
@@ -548,6 +576,12 @@ export const FLAG_CREDITS = [
     source: "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom.svg"
   },
   {
+    label: "Canada",
+    title: "Flag of Canada.svg",
+    license: "Public domain",
+    source: "https://commons.wikimedia.org/wiki/File:Flag_of_Canada.svg"
+  },
+  {
     label: "German Army",
     title: "Balkenkreuz.svg",
     license: "Public domain",
@@ -634,7 +668,7 @@ export function getMapHistory(map) {
 export function getRouteHeading(route) {
   if (route.type === "home") return "HLL Map";
   if (route.type === "about") return "About HLL Map";
-  return `${route.map.label} ${route.team.label} ${VIEW_LABELS[route.view]}`;
+  return `${getGame(route.map.game).shortLabel} ${route.map.label} ${route.team.label} ${VIEW_LABELS[route.view]}`;
 }
 
 export function getSeo(route) {
@@ -656,10 +690,10 @@ export function getSeo(route) {
     return {
       title: heading,
       description: history
-        ? `${history.summary} View ${route.map.label} ${route.team.label} ${isTanks ? "tank identification" : "default garrison locations"} for ${game.label}.`
+        ? `${history.summary} View ${game.shortLabel} ${route.map.label} ${route.team.label} ${isTanks ? "tank identification" : "default garrison locations"} for ${game.label}.`
         : isTanks
-          ? `${route.map.label} ${route.team.label} tank identification for ${game.label}. Use this page to identify enemy tanks on ${route.map.label}.`
-          : `${route.map.label} ${route.team.label} default garrison locations for ${game.label}. Use this map to find Offensive mode default garrison spawn locations.`,
+          ? `${game.shortLabel} ${route.map.label} ${route.team.label} tank identification for ${game.label}. Use this page to identify enemy tanks on ${route.map.label}.`
+          : `${game.shortLabel} ${route.map.label} ${route.team.label} default garrison locations for ${game.label}. Use this map to find Offensive mode default garrison spawn locations.`,
       canonical: getCanonicalUrl(route.path),
       image: getCanonicalUrl(getImageForRoute(route)),
       heading

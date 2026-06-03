@@ -38,12 +38,16 @@ if (!sitemap) {
 
 for (const asset of [
   "images/carentan_allies.webp",
+  "images/junobeach_allies.webp",
+  "images/junobeach_axis.webp",
   "images/previews/carentan.jpg",
+  "images/previews/juno-beach.jpg",
   "images/previews/thanh-hoa-bridge.jpg",
   "images/thanhhoabridge_us.webp",
   "images/favicon/favicon.ico",
   "images/flags/us.svg",
   "images/flags/uk.svg",
+  "images/flags/canada.svg",
   "images/flags/balkenkreuz.svg",
   "images/flags/soviet-union.svg",
   "images/flags/north-vietnam.svg",

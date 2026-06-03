@@ -210,11 +210,17 @@ function MapDetailPage({ route }) {
 function MapViewport({ route }) {
   const [zoomKit, setZoomKit] = useState(null);
   const [fullscreenMode, setFullscreenMode] = useState(null);
+  const [stageSize, setStageSize] = useState(null);
+  const [frameSize, setFrameSize] = useState(null);
+  const [imageSize, setImageSize] = useState(null);
+  const frameRef = useRef(null);
   const containerRef = useRef(null);
   const imageSrc = getImageForRoute(route);
   const alt = `${getRouteHeading(route)} map image`;
   const resetKey = `${route.map.id}-${route.team.slug}-${route.view}`;
   const isFullscreen = Boolean(fullscreenMode);
+  const fitSize = getContainedSize(isFullscreen ? stageSize : frameSize, imageSize);
+  const fitKey = fitSize ? `${Math.round(fitSize.width)}x${Math.round(fitSize.height)}` : "pending";
 
   useEffect(() => {
     let mounted = true;
@@ -232,9 +238,81 @@ function MapViewport({ route }) {
   }, []);
 
   useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return undefined;
+
+    function updateStageSize() {
+      const rect = element.getBoundingClientRect();
+      setStageSize({
+        width: rect.width,
+        height: rect.height
+      });
+    }
+
+    updateStageSize();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateStageSize);
+      return () => window.removeEventListener("resize", updateStageSize);
+    }
+
+    const observer = new ResizeObserver(updateStageSize);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const element = frameRef.current;
+    if (!element) return undefined;
+
+    function updateFrameSize() {
+      const rect = element.getBoundingClientRect();
+      setFrameSize({
+        width: rect.width,
+        height: getMapStageMaxHeight()
+      });
+    }
+
+    updateFrameSize();
+    window.addEventListener("resize", updateFrameSize);
+
+    if (typeof ResizeObserver === "undefined") {
+      return () => window.removeEventListener("resize", updateFrameSize);
+    }
+
+    const observer = new ResizeObserver(updateFrameSize);
+    observer.observe(element);
+
+    return () => {
+      window.removeEventListener("resize", updateFrameSize);
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const image = new Image();
+
+    setImageSize(null);
+    image.onload = () => {
+      if (!active) return;
+      setImageSize({
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      });
+    };
+    image.src = imageSrc;
+
+    return () => {
+      active = false;
+    };
+  }, [imageSrc]);
+
+  useEffect(() => {
     function syncFullscreenState() {
       const element = getFullscreenElement();
-      if (element === containerRef.current) {
+      if (element === frameRef.current) {
         setFullscreenMode("native");
       } else if (fullscreenMode === "native") {
         setFullscreenMode(null);
@@ -258,13 +336,22 @@ function MapViewport({ route }) {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    function exitOnEscape(event) {
+      if (event.key === "Escape" && fullscreenMode === "fallback") {
+        setFullscreenMode(null);
+      }
+    }
+
+    document.addEventListener("keydown", exitOnEscape);
+
     return () => {
+      document.removeEventListener("keydown", exitOnEscape);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isFullscreen]);
+  }, [fullscreenMode, isFullscreen]);
 
   async function enterFullscreen() {
-    const element = containerRef.current;
+    const element = frameRef.current;
     if (!element) return;
 
     if (fullscreenMode === "native" || getFullscreenElement() === element) {
@@ -293,48 +380,85 @@ function MapViewport({ route }) {
 
   if (!zoomKit) {
     return (
-      <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} aria-label="Map image">
-        <img className="map-image plain" src={imageSrc} alt={alt} />
-      </section>
+      <div className={`map-stage-frame ${isFullscreen ? "is-fullscreen" : ""}`} ref={frameRef}>
+        <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} style={getMapStageStyle(fitSize, isFullscreen)} aria-label="Map image">
+          <img className="map-image plain" src={imageSrc} alt={alt} />
+        </section>
+      </div>
     );
   }
 
   const { TransformWrapper, TransformComponent } = zoomKit;
+  const contentStyle = fitSize
+    ? { width: `${fitSize.width}px`, height: `${fitSize.height}px` }
+    : { width: "100%", height: "100%" };
 
   return (
-    <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} aria-label="Map image">
-      <TransformWrapper
-        key={resetKey}
-        initialScale={1}
-        minScale={1}
-        maxScale={4}
-        centerOnInit
-        limitToBounds
-        wheel={{ step: 0.12 }}
-        pinch={{ step: 5 }}
-        panning={{ velocityDisabled: true }}
-        doubleClick={{ mode: "zoomIn", step: 0.7 }}
-      >
-        {({ zoomIn, zoomOut, resetTransform }) => (
-          <>
-            <div className="map-toolbar" aria-label="Map zoom controls">
-              <ToolbarButton label="Zoom in" onClick={() => zoomIn(0.35)} icon={<ZoomIn size={18} />} />
-              <ToolbarButton label="Zoom out" onClick={() => zoomOut(0.35)} icon={<ZoomOut size={18} />} />
-              <ToolbarButton label="Reset view" onClick={() => resetTransform()} icon={<RotateCcw size={18} />} />
-              <ToolbarButton
-                label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                onClick={enterFullscreen}
-                icon={isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-              />
-            </div>
-            <TransformComponent wrapperClass="transform-wrapper" contentClass="transform-content">
-              <img className="map-image" src={imageSrc} alt={alt} draggable="false" />
-            </TransformComponent>
-          </>
-        )}
-      </TransformWrapper>
-    </section>
+    <div className={`map-stage-frame ${isFullscreen ? "is-fullscreen" : ""}`} ref={frameRef}>
+      <section className={`map-stage ${isFullscreen ? "is-fullscreen" : ""}`} ref={containerRef} style={getMapStageStyle(fitSize, isFullscreen)} aria-label="Map image">
+        <TransformWrapper
+          key={`${resetKey}-${fitKey}`}
+          initialScale={1}
+          minScale={1}
+          maxScale={4}
+          centerOnInit
+          centerZoomedOut
+          disablePadding
+          limitToBounds
+          wheel={{ step: 0.12 }}
+          pinch={{ step: 5 }}
+          panning={{ velocityDisabled: true }}
+          doubleClick={{ mode: "zoomIn", step: 0.7 }}
+        >
+          {({ zoomIn, zoomOut, centerView }) => (
+            <>
+              <div className="map-toolbar" aria-label="Map zoom controls">
+                <ToolbarButton label="Zoom in" onClick={() => zoomIn(0.35)} icon={<ZoomIn size={18} />} />
+                <ToolbarButton label="Zoom out" onClick={() => zoomOut(0.35)} icon={<ZoomOut size={18} />} />
+                <ToolbarButton label="Fit view" onClick={() => centerView(1, 0)} icon={<RotateCcw size={18} />} />
+                <ToolbarButton
+                  label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                  onClick={enterFullscreen}
+                  icon={isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                />
+              </div>
+              <TransformComponent wrapperClass="transform-wrapper" contentClass="transform-content" contentStyle={contentStyle}>
+                <img className="map-image" src={imageSrc} alt={alt} draggable="false" />
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
+      </section>
+    </div>
   );
+}
+
+function getMapStageStyle(fitSize, isFullscreen) {
+  if (isFullscreen || !fitSize) return undefined;
+
+  return {
+    width: `${fitSize.width}px`,
+    height: `${fitSize.height}px`
+  };
+}
+
+function getContainedSize(containerSize, contentSize) {
+  if (!containerSize || !contentSize || !containerSize.width || !containerSize.height || !contentSize.width || !contentSize.height) {
+    return null;
+  }
+
+  const scale = Math.min(containerSize.width / contentSize.width, containerSize.height / contentSize.height);
+  return {
+    width: contentSize.width * scale,
+    height: contentSize.height * scale
+  };
+}
+
+function getMapStageMaxHeight() {
+  if (typeof window === "undefined") return 780;
+  if (window.matchMedia?.("(max-width: 640px)").matches) return Math.max(window.innerHeight * 0.68, 390);
+  if (window.matchMedia?.("(min-width: 981px)").matches) return Math.min(window.innerHeight * 0.78, 840);
+  return Math.min(window.innerHeight * 0.72, 780);
 }
 
 function MapCard({ map }) {
@@ -390,11 +514,13 @@ function MapHistory({ route }) {
 
 function RouteTitle({ route }) {
   const faction = getFaction(route.team.faction);
+  const game = getGame(route.map.game);
 
   return (
     <h1 id="page-title" className="route-title" aria-label={getRouteHeading(route)}>
       {faction && <img className="route-title-flag" src={faction.flagImage} alt="" aria-hidden="true" />}
       <span className="route-title-text">
+        <span>{game.shortLabel}</span>
         <span>{route.map.label}</span>
         <span>{route.team.label}</span>
         <span>{VIEW_LABELS[route.view]}</span>
@@ -474,7 +600,7 @@ function exitFullscreen() {
 }
 
 function shouldUseFallbackFullscreen() {
-  return window.matchMedia?.("(max-width: 640px)").matches || !document.fullscreenEnabled;
+  return true;
 }
 
 function SegmentedLinks({ label, options }) {
@@ -626,7 +752,7 @@ function AboutPage() {
               <a href="https://www.reddit.com/r/HellLetLoose/comments/1ejip8e/default_garrison_ultimate_guide_2024/" target="_blank" rel="noopener noreferrer">
                 Default Garrison Ultimate Guide
               </a>{" "}
-              and the excellent <a href="https://mattw.io/maps-let-loose/" target="_blank" rel="noopener noreferrer">Maps Let Loose</a> tool.
+              and the excellent <a href="https://mattw.io/maps-let-loose/" target="_blank" rel="noopener noreferrer">Maps Let Loose</a> tool, with additional map images captured from in-game screenshots.
             </p>
           </article>
           <p>
