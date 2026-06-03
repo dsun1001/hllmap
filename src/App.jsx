@@ -4,6 +4,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useParams
 } from "react-router-dom";
@@ -44,14 +45,27 @@ import {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/about.html" element={<AboutPage />} />
-      <Route path="/:mapId/:teamSlug/:view" element={<DetailRoute />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/about.html" element={<AboutPage />} />
+        <Route path="/:mapId/:teamSlug/:view" element={<DetailRoute />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
 }
 
 function HomePage() {
@@ -160,7 +174,7 @@ function MapDetailPage({ route }) {
           <section className="tool-header" aria-labelledby="page-title">
             <Link className="eyebrow eyebrow-link detail-brand-link" to="/">
               <img src="/images/favicon/android-chrome-512x512.png" alt="" aria-hidden="true" />
-              <span>{getGame(route.map.game).label}</span>
+              <span>HLL Map</span>
             </Link>
             <RouteTitle route={route} />
             <div className="control-bar">

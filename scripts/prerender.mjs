@@ -29,6 +29,7 @@ await fs.writeFile(path.join(distDir, "sitemap.xml"), getSitemapXml(), "utf8");
 async function copyStaticAssets() {
   await fs.cp(path.join(rootDir, "images"), path.join(distDir, "images"), { recursive: true });
   await copyIfExists("site.webmanifest");
+  await copyIfExists("robots.txt");
   await copyIfExists("google499b9a0ce1578e3c.html");
 }
 

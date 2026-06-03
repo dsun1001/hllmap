@@ -12,12 +12,11 @@ phases:
   post_build:
     commands:
       - aws s3 sync dist/ s3://hllmap.com --delete
-      - aws s3 sync dist/ s3://www.hllmap.com --delete
+      - aws s3api put-bucket-website --bucket www.hllmap.com --website-configuration '{"RedirectAllRequestsTo":{"HostName":"hllmap.com","Protocol":"https"}}'
       - |
         find dist -type f ! -name "*.*" -print0 | while IFS= read -r -d '' file; do
           key="${file#dist/}"
           aws s3 cp "$file" "s3://hllmap.com/$key" --content-type "text/html; charset=utf-8" --metadata-directive REPLACE
-          aws s3 cp "$file" "s3://www.hllmap.com/$key" --content-type "text/html; charset=utf-8" --metadata-directive REPLACE
         done
 
 artifacts:

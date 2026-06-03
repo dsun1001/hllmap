@@ -216,6 +216,10 @@ h3 {
   flex: 0 0 auto;
 }
 
+.brand-heading h1 {
+  color: var(--accent-color);
+}
+
 .segmented,
 .segmented-control {
   display: inline-flex;

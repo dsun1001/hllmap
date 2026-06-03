@@ -52,6 +52,7 @@ for (const asset of [
   "images/flags/soviet-union.svg",
   "images/flags/north-vietnam.svg",
   "site.webmanifest",
+  "robots.txt",
   "google499b9a0ce1578e3c.html"
 ]) {
   try {
